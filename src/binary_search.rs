@@ -1,32 +1,34 @@
-use std::cmp::{
-    PartialOrd,
-};
-
 pub enum SearchEnum {
     Found(usize, usize),
     NotFound(usize),
 }
 
-pub fn search<T>(values: &[T], val: T) -> SearchEnum
-    where T: Eq + PartialOrd + Copy
+pub fn search<T>(values: &[T], val: &T) -> SearchEnum
+    where T: Eq + Clone + Into<usize>
 {
-    let mut lo: usize = 0;
-    let mut hi: usize = values.len() - 1;
-    let mut iterations: usize = 1;
+    let mut iterations: usize = 0;
+    if values.len() > 0 {
+        let mut lo: usize = 0;
+        let mut hi: usize = values.len() - 1;
 
-    while lo <= hi {
-        let mid = lo + ((hi - lo) >> 1);
-        let test_elem: T = values[mid];
-        if test_elem == val {
-            return SearchEnum::Found(mid, iterations);
+        let valu: usize = Into::<usize>::into(val.clone());
+        while lo <= hi {
+            let mid = lo + ((hi - lo) >> 1);
+            let test_elem: T = values[mid].clone();
+            let key: usize = Into::<usize>::into(test_elem);
+
+            iterations += 1;
+            if key == valu {
+                return SearchEnum::Found(mid, iterations);
+            }
+            else if key < valu {
+                lo = mid + 1;
+            }
+            else {
+                if mid == 0 { break; }
+                hi = mid - 1;
+            }
         }
-        else if test_elem < val {
-            lo = mid + 1;
-        }
-        else {
-            hi = mid - 1;
-        }
-        iterations += 1;
     }
     SearchEnum::NotFound(iterations)
 }
